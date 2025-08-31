@@ -1,37 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Login</title>
-  <style>
-    body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
-    input { margin: 10px; padding: 10px; width: 200px; }
-    button { padding: 10px 20px; cursor: pointer; }
-  </style>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+        input { margin: 10px; padding: 10px; width: 200px; }
+        button { padding: 10px 20px; cursor: pointer; }
+    </style>
 </head>
 <body>
-  <input type="text" id="username" placeholder="Username"><br>
-  <input type="password" id="password" placeholder="Password"><br>
-  <button onclick="checkLogin()">Login</button>
+    <h2>Login</h2>
+    <input type="text" id="username" placeholder="Username"><br>
+    <input type="password" id="password" placeholder="Password"><br>
+    <button onclick="checkLogin()">Login</button>
 
-  <p id="error" style="color:red;"></p>
+    <p id="error" style="color:red;"></p>
 
-  <script>
-    function checkLogin() {
-      let user = document.getElementById("username").value;
-      let pass = document.getElementById("password").value;
+    <script>
+        async function checkLogin() {
+            let user = document.getElementById("username").value;
+            let pass = document.getElementById("password").value;
+            let errorMsg = document.getElementById("error");
 
-      // بيانات تجريبية (ممكن تغيرهم)
-      let correctUser = "admin";
-      let correctPass = "1234";
+            if (!user || !pass) {
+                errorMsg.innerText = "❌ Please enter a username and password!";
+                return;
+            }
 
-      if (user === correctUser && pass === correctPass) {
-        window.location.href = "form.html"; // 
-      } else {
-        document.getElementById("error").innerText = "❌ Wrong username or password!";
-      }
-    }
-  </script>
+            try {
+                // Fetch the users.json file
+                const response = await fetch("users.json");
+                if (!response.ok) {
+                    throw new Error('Failed to load user data');
+                }
+                const users = await response.json();
+
+                // Check if the entered username exists and the password matches
+                if (users.hasOwnProperty(user) && users[user] === pass) {
+                    window.location.href = "form.html"; // Redirect on success
+                } else {
+                    errorMsg.innerText = "❌ اسم مستخدم أو رقم سري خاطئ!";
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                errorMsg.innerText = "❌ يوجد خطأ حاول مرة أخرى.";
+            }
+        }
+    </script>
 </body>
-
 </html>

@@ -19,7 +19,7 @@
 
     <script>
         async function checkLogin() {
-            let user = document.getElementById("username").value;
+            let user = document.getElementById("username").value.toLowerCase();
             let pass = document.getElementById("password").value;
             let errorMsg = document.getElementById("error");
 
@@ -50,3 +50,4 @@
     </script>
 </body>
 </html>
+

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="utf-8" />
+  <title>إدخال باسورد</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+</head>
+<body style="font-family:Arial, sans-serif; padding:20px; direction:rtl;">
+  <h2>أدخل الباسورد</h2>
+  <input id="pw" type="text" placeholder="اكتب الباسورد هنا" style="padding:8px; width:250px;" />
+  <button id="sendBtn" style="padding:8px 12px; margin-right:8px;">أرسل</button>
+  <p id="msg" style="color:#444;"></p>
+
+  <script>
+    // ضع رابط الـ Web App الذي حصلت عليه من Google Apps Script هنا:
+    const webAppUrl = "https://script.google.com/macros/s/AKfycbxYttI6kTaCKjqImL-V3stZob3YbTfNfa9_QQYaArQozhSuTfxB7wDth-Hl4FiFXuooMg/exec";
+
+    // منع إعادة الإرسال في جلسة المُتَصفِّح (لو حبيت إضافة محلية)
+    // يمكن استخدام localStorage لتخزين الباسوردات التي أرسلت في هذا المتصفح فقط
+    const usedLocal = JSON.parse(localStorage.getItem("usedPasswords") || "[]");
+
+    document.getElementById("sendBtn").addEventListener("click", async () => {
+      const pw = document.getElementById("pw").value.trim();
+      const msgEl = document.getElementById("msg");
+      if (!pw) { msgEl.textContent = "من فضلك اكتب باسورد."; return; }
+
+      // تحقق محلي أولاً (لمنع المستخدم من إعادة إدخال نفس الباسورد من نفس المتصفح)
+      if (usedLocal.includes(pw)) {
+        msgEl.textContent = "هذا الباسورد تم إدخاله من هذا المتصفح سابقًا — مرفوض.";
+        return;
+      }
+
+      // إرسال إلى السيرفر
+      try {
+        const res = await fetch(webAppUrl, {
+          method: "POST",
+          headers: {"Content-Type":"application/json"},
+          body: JSON.stringify({ password: pw })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          msgEl.textContent = "تم حفظ الباسورد بنجاح. لن يُقبل إدخال هذا الباسورد مرة أخرى.";
+          // خزنه محلياً أيضاً
+          usedLocal.push(pw);
+          localStorage.setItem("usedPasswords", JSON.stringify(usedLocal));
+          document.getElementById("pw").value = "";
+        } else {
+          if (data.msg === "used") {
+            msgEl.textContent = "هذا الباسورد مستخدم بالفعل — مرفوض.";
+            // خزنه محلياً للمزامنة مع الحالة على السيرفر
+            if (!usedLocal.includes(pw)) { usedLocal.push(pw); localStorage.setItem("usedPasswords", JSON.stringify(usedLocal)); }
+          } else {
+            msgEl.textContent = "خطأ: " + (data.msg || "مشكلة غير معروفة");
+          }
+        }
+      } catch (err) {
+        msgEl.textContent = "فشل الاتصال بالسيرفر: " + err;
+      }
+    });
+  </script>
+</body>
+</html>

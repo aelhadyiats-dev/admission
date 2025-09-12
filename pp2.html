@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head><meta charset="UTF-8"><title>Test</title></head>
+<body>
+<button onclick="send()">إرسال</button>
+<script>
+async function send(){
+  try {
+    const res = await fetch("https://script.google.com/macros/s/AKfycbyAzuwhp1CSeqY7E_FE8cIy2H7DoPChxo_0EGeZ44T3/exec", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ password: "test123" })
+    });
+    const data = await res.json();
+    console.log("Response:", data);
+  } catch(e){
+    console.error("Fetch error:", e);
+  }
+}
+</script>
+</body>
+</html>

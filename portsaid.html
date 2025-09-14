@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>رصد درجات المقابلة</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden; 
+    }
+    iframe {
+      border: none;
+      width: 100vw;
+      height: 100vh;
+    }
+  </style>
+</head>
+<body>
+  <h1>جاري تحميل الامتحان...</h1>
+  <p>الرجاء الانتظار 3 ثوانٍ.</p>
+
+  <script>
+    setTimeout(function() {
+     
+      document.body.innerHTML = '';
+      
+     
+      const iframe = document.createElement('iframe');
+      
+
+      iframe.src = "https://docs.google.com/spreadsheets/d/1ZTRoLRAA95kWjZlHSVgF-ayL09V0csSH-GP5Z4TlJHE/edit?usp=sharing";
+      
+    
+      document.body.appendChild(iframe);
+      
+    }, 3000); 
+  </script>
+</body>
+</html>

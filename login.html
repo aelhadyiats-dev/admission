@@ -5,49 +5,79 @@
     <title>Login</title>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
-        input { margin: 10px; padding: 10px; width: 200px; }
+        input, select { margin: 10px; padding: 10px; width: 200px; }
         button { padding: 10px 20px; cursor: pointer; }
     </style>
 </head>
 <body>
     <h2>Login</h2>
-    <input type="text" id="username" placeholder="Username"><br>
     <input type="password" id="password" placeholder="Password"><br>
+    <select id="language-select">
+        <option value="">-- اختر المدرسة  --</option>
+        <option value="redsea.html">البحر الأحمر</option>
+        <option value="beniswef.html">بني سويف</option>
+        <option value="fayoum.html">الفيوم</option>
+        <option value="mounofia.html">المنوفية</option>
+        <option value="arish.html">العريش</option>
+        <option value="matrouh.html">مرسى مطروح</option>
+        <option value="sharkia.html">الشرقية</option>
+        <option value="ismailia.html">الاسماعيلية</option>
+        <option value="portsaid.html"></option>
+    </select><br>
     <button onclick="checkLogin()">Login</button>
 
     <p id="error" style="color:red;"></p>
 
     <script>
+        // Define the mapping from password prefix to the school's JSON file.
+        const schoolFiles = {
+            "a": "school1_users.json",
+            "b": "school2_users.json",
+            "c": "school3_users.json",
+            "d": "school4_users.json",
+            "e": "school5_users.json",
+            "f": "school6_users.json",
+            "g": "school7_users.json",
+            "h": "school8_users.json",
+            "i": "school9_users.json",
+        };
+
         async function checkLogin() {
-            let user = document.getElementById("username").value.toLowerCase();
             let pass = document.getElementById("password").value;
+            let language = document.getElementById("language-select").value;
             let errorMsg = document.getElementById("error");
 
-            if (!user || !pass) {
-                errorMsg.innerText = "❌ Please enter a username and password!";
+            if (!pass || !language) {
+                errorMsg.innerText = "ادخل الرقم السري بشكل صحيح واختر لغة الاختبار";
+                return;
+            }
+
+            const passPrefix = pass.charAt(0);
+            const schoolFile = schoolFiles[passPrefix];
+
+            if (!schoolFile) {
+                errorMsg.innerText = "❌الرقم السري غير صحيح!";
                 return;
             }
 
             try {
-                // Fetch the users.json file
-                const response = await fetch("users.json");
+                const response = await fetch(schoolFile);
                 if (!response.ok) {
-                    throw new Error('Failed to load user data');
+                    throw new Error('لا يوجد اتصال بالانترنت');
                 }
                 const users = await response.json();
 
-                // Check if the entered username exists and the password matches
-                if (users.hasOwnProperty(user) && users[user] === pass) {
-                    window.location.href = "form.html"; // Redirect on success
+                if (users.hasOwnProperty(pass)) {
+                    // Redirect to the selected language page
+                    window.location.href = language;
                 } else {
-                    errorMsg.innerText = "❌ اسم مستخدم أو رقم سري خاطئ!";
+                    errorMsg.innerText = "❌ الرقم السري غير صحيح!";
                 }
             } catch (error) {
-                console.error("Error:", error);
-                errorMsg.innerText = "❌ يوجد خطأ حاول مرة أخرى.";
+                console.error("Failed to load user data:", error);
+                errorMsg.innerText = "❌حاول مرة أخرى.";
             }
         }
     </script>
 </body>
 </html>
-

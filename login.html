@@ -5,15 +5,16 @@
     <title>Login</title>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
-        input, select { margin: 10px; padding: 10px; width: 200px; }
+        input, select { margin: 10px; padding: 10px; width: 220px; }
         button { padding: 10px 20px; cursor: pointer; }
     </style>
 </head>
 <body>
     <h2>Login</h2>
     <input type="password" id="password" placeholder="Password"><br>
-    <select id="language-select">
-        <option value="">-- اختر المدرسة  --</option>
+
+    <select id="school-select">
+        <option value="">-- اختر المدرسة --</option>
         <option value="redsea.html|school1_users.json">البحر الأحمر</option>
         <option value="beniswef.html|school2_users.json">بني سويف</option>
         <option value="fayoum.html|school3_users.json">الفيوم</option>
@@ -21,65 +22,44 @@
         <option value="arish.html|school5_users.json">العريش</option>
         <option value="matrouh.html|school6_users.json">مرسى مطروح</option>
         <option value="sharkia.html|school7_users.json">الشرقية</option>
-        <option value="ismailia.html|school8_users.json">الاسماعيلية</option>
+        <option value="ismailia.html|school8_users.json">الإسماعيلية</option>
         <option value="portsaid.html|school9_users.json">بورسعيد</option>
     </select><br>
-    <button onclick="checkLogin()">Login</button>
 
+    <button onclick="checkLogin()">Login</button>
     <p id="error" style="color:red;"></p>
 
     <script>
-        // Define the mapping from password prefix to the school's JSON file.
-        const schoolFiles = {
-            "a": "school1_users.json",
-            "b": "school2_users.json",
-            "c": "school3_users.json",
-            "d": "school4_users.json",
-            "e": "school5_users.json",
-            "f": "school6_users.json",
-            "g": "school7_users.json",
-            "h": "school8_users.json",
-            "i": "school9_users.json",
-        };
+    async function checkLogin() {
+        let pass = document.getElementById("password").value;
+        let schoolSelect = document.getElementById("school-select").value;
+        let errorMsg = document.getElementById("error");
 
-        async function checkLogin() {
-            let pass = document.getElementById("password").value;
-            let language = document.getElementById("language-select").value;
-            let errorMsg = document.getElementById("error");
-
-            if (!pass || !language) {
-                errorMsg.innerText = "ادخل الرقم السري بشكل صحيح واختر المدرسة";
-                return;
-            }
-
-            const passPrefix = pass.charAt(0);
-            const schoolFile = schoolFiles[passPrefix];
-
-            if (!schoolFile) {
-                errorMsg.innerText = "❌الرقم السري غير صحيح!";
-                return;
-            }
-
-            try {
-                const response = await fetch(schoolFile);
-                if (!response.ok) {
-                    throw new Error('لا يوجد اتصال بالانترنت');
-                }
-                const users = await response.json();
-
-                if (users.hasOwnProperty(pass)) {
-                    // Redirect to the selected language page
-                    window.location.href = language;
-                } else {
-                    errorMsg.innerText = "❌ الرقم السري غير صحيح!";
-                }
-            } catch (error) {
-                console.error("Failed to load user data:", error);
-                errorMsg.innerText = "❌حاول مرة أخرى.";
-            }
+        if (!pass || !schoolSelect) {
+            errorMsg.innerText = "⚠️ ادخل الرقم السري واختر المدرسة";
+            return;
         }
+
+        // نفصل القيمة: [صفحة المدرسة, ملف JSON]
+        const [schoolPage, schoolFile] = schoolSelect.split("|");
+
+        try {
+            const response = await fetch(schoolFile);
+            if (!response.ok) throw new Error('❌ ملف المدرسة غير موجود');
+
+            const users = await response.json();
+
+            if (users.hasOwnProperty(pass)) {
+                // ✅ الرقم السري صحيح → تحويل لصفحة المدرسة
+                window.location.href = schoolPage;
+            } else {
+                errorMsg.innerText = "❌ الرقم السري غير صحيح!";
+            }
+        } catch (error) {
+            console.error("Failed to load user data:", error);
+            errorMsg.innerText = "❌ خطأ في تحميل بيانات المدرسة.";
+        }
+    }
     </script>
 </body>
 </html>
-
-
